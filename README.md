@@ -6,7 +6,8 @@ Task 1
 1
 •  Fit a linear regression model to the data without any feature transformsa. 
 a. I/O data input 
- i. Data = np.loadtxt('CS6840DATA1.csv', delimiter = ",", skiprows = 1)#should be same syntax from linear regression example
+ i. Data = np.loadtxt('CS6840DATA1.csv', delimiter = ",", skiprows = 1)#should be same syntax
+ from linear regression example
 2
 a. Report the model parameters. What is the SSE and MSE?
 3. After fitting the model, check the assumptions we must make with linear
@@ -15,11 +16,13 @@ regression.
 • Residual independence
 • Homoscedasticity of the residuals
 • Co-linearity of the features.
-a. With 4 indep and 1 depend var, we will need 4 plots x ( variable label plot, variable residual plot )
+a. With 4 indep and 1 depend var, we will need 4 plots x ( variable label plot, variable residual 
+plot )
 b. function for Pearson Coeff
 
 4. Apply any technique you see fit to try and reduce the MSE and SSE
-a.The simplest mechanism would be to make polynomial functions of the features. given features x1, x2 we can make x3 = f( x1, x2) = x1^2 + x2^2 etc and see how well x3 fits
+a.The simplest mechanism would be to make polynomial functions of the features. given features x1,
+x2 we can make x3 = f( x1, x2) = x1^2 + x2^2 etc and see how well x3 fits
 5. Report how your modifications to the model/features impact the assumptions you checked in (3).
 6. Iterate between tasks (4) and (5) and try and reduce the SSE further.
 
