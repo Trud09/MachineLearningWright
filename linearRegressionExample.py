@@ -26,7 +26,6 @@ import matplotlib.pyplot as plt
 #load data - skip first row which only contains metadata
 reData = np.loadtxt('reDataUCI.csv', delimiter = ",", skiprows = 1)
 
-
 numRows = np.size(reData,0)
 numCols = np.size(reData,1)
 
@@ -41,15 +40,21 @@ numCols = np.size(reData,1)
 
 xFeatures = reData[:,0:numCols-1]
 
+#debug statements
+location = (xFeatures[:,5] + xFeatures[:,6])
+
+
+#location = np.log(location)
+
 #Last column are the labels
 yLabels = reData[:,7]
 
 #ID number
-plt.figure()
-plt.title('ID Number vs. Y')
-plt.ylabel('Y label')
-plt.xlabel('ID Number')
-plt.scatter(xFeatures[:,0],yLabels)
+# plt.figure()
+# plt.title('ID Number vs. Y')
+# plt.ylabel('Y label')
+# plt.xlabel('ID Number')
+# plt.scatter(xFeatures[:,0],yLabels)
 
 # transaction date
 plt.figure()
@@ -58,19 +63,19 @@ plt.ylabel('Y label')
 plt.xlabel('Transaction Date')
 plt.scatter(xFeatures[:,1],yLabels)
 
-# house age
-plt.figure()
-plt.title('House Age vs. Y')
-plt.ylabel('Y label')
-plt.xlabel('House Age (years)')
-plt.scatter(xFeatures[:,2],yLabels)
+# # house age -- may be a good polynomial transform (x^2)
+# plt.figure()
+# plt.title('House Age vs. Y')
+# plt.ylabel('Y label')
+# plt.xlabel('House Age (years)')
+# plt.scatter(xFeatures[:,2],yLabels)
 
-# distance to nearest MRT station
-plt.figure()
-plt.title('Dist to MRT vs. Y')
-plt.ylabel('Y label')
-plt.xlabel('Dist to MRT (meters)')
-plt.scatter(xFeatures[:,3],yLabels)
+# # distance to nearest MRT station -- may be good to use log 
+# plt.figure()
+# plt.title('Dist to MRT vs. Y')
+# plt.ylabel('Y label')
+# plt.xlabel('Dist to MRT (meters)')
+# plt.scatter(xFeatures[:,3],yLabels)
 
 # number of convenience stores
 plt.figure()
@@ -80,19 +85,32 @@ plt.xlabel('Num Stores (int)')
 plt.scatter(xFeatures[:,4],yLabels)
 
 
-# lat coord
-plt.figure()
-plt.title('Lat Coord vs. Y')
-plt.ylabel('Y label')
-plt.xlabel('Num Stores (int)')
-plt.scatter(xFeatures[:,5],yLabels)
+# # lat coord
+# plt.figure()
+# plt.title('Lat Coord vs. Y')
+# plt.ylabel('Y label')
+# plt.xlabel('Num Stores (int)')
+# plt.scatter(xFeatures[:,5],yLabels)
 
-#long coord
+# #long coord
+# plt.figure()
+# plt.title('Long coord vs. Y')
+# plt.ylabel('Y label')
+# plt.xlabel('Long Coord (double)')
+# plt.scatter(xFeatures[:,6], yLabels)
+
+#location (lat+long)
 plt.figure()
-plt.title('Long coord vs. Y')
+plt.title('geolocation vs. Y')
 plt.ylabel('Y label')
-plt.xlabel('Long Coord (double)')
-plt.scatter(xFeatures[:,6], yLabels)
+plt.xlabel('geolcation (double)')
+plt.scatter(location, yLabels)
+
+plt.figure()
+plt.title('outlier-less geolocation vs. Y')
+plt.ylabel('Y label')
+plt.xlabel('geolcation (double)')
+plt.scatter(location, yLabels)
 
 plt.show()
 
@@ -204,8 +222,8 @@ plt.colorbar()
 plt.show()
 
 
-
-
+###########################################################################################
+print("Iteration 1")
 
 # cut the "bad" variables and see what happens
 xFeaturesTrimmed = np.hstack((xFeatures[:,[1]], xFeatures[:,[2]],xFeatures[:,[3]],xFeatures[:,[4]], xFeatures[:,[5]],xFeatures[:,[6]])       )
@@ -345,6 +363,206 @@ print('MSE all features: ' + str(np.mean(np.square(np.subtract(yLabels,yPredicte
 
 
 
+
+############################################################################################################### New tweaks
+
+
+
+
+print("Iteration 2")
+
+#combine features 5 & 6
+location = xFeatures[:,5]+xFeatures[:,6]
+#reshape location array
+location = location.reshape(-1,1)
+
+#next trimmed features version
+xFeaturesTrimmed2 = np.column_stack((xFeatures[:,1], xFeatures[:,3], xFeatures[:,4], location))
+
+
+#Peform new transforms
+# continue to take the log of feature 1
+x1 = xFeatures[:,[1]]
+x1 = np.log(x1)
+reg = LinearRegression().fit(x1 , yLabels)
+predictedY = reg.predict(x1)
+
+
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable1 (mod appraoch):" + str(reg._residues))
+# plt.figure()
+# plt.scatter(x1, yLabels, color = 'g')
+# plt.plot(x1, predictedY, color = 'r')
+
+# log scale 2rd feature
+# x2 = xFeatures[:,[2]]
+# x2 = np.log(x2)
+
+# reg = LinearRegression().fit(x2 , yLabels)
+# predictedY = reg.predict(x2)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+#print("SSE for single variable 3 (log):" + str(reg._residues))
+plt.figure()
+plt.scatter(x3, yLabels, color = 'g')
+plt.plot(x3, predictedY, color = 'r')
+
+
+# log 3rd feature
+x3 = xFeatures[:,[3]]
+x3 = np.log(x3)
+
+reg = LinearRegression().fit(x3 , yLabels)
+predictedY = reg.predict(x3)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 3 (log):" + str(reg._residues))
+plt.figure()
+plt.scatter(x3, yLabels, color = 'g')
+plt.plot(x3, predictedY, color = 'r')
+
+
+# 4th feature (no transform)
+x4 = xFeatures[:,[4]]
+reg = LinearRegression().fit(x4 , yLabels)
+predictedY = reg.predict(x4)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 4 (no transform):" + str(reg._residues))
+plt.figure()
+plt.scatter(x4, yLabels, color = 'g')
+plt.plot(x4, predictedY, color = 'r')
+
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+# print("SSE for single variable 6 (square):" + str(reg._residues))
+# plt.figure()
+# plt.scatter(location, yLabels, color = 'g')
+# plt.plot(location, predictedY, color = 'r')
+
+# log of combined features 5 and 6
+#location = xFeatures[:,5]+xFeatures[:,6] #np.array()
+location = np.log(location)
+#location = location.reshape(-1,1)
+
+reg = LinearRegression().fit(location , yLabels)
+predictedY = reg.predict(location)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for combined variable 5 and 6 (log):" + str(reg._residues))
+
+#Fit the model again with the updated features:
+xFeatures[:,1] = np.log(xFeatures[:,1])
+xFeatures[:,3] = np.log(xFeatures[:,3])
+location = np.log(location)
+
+#xFeaturesTrimmed2 = np.column_stack((xFeatures[:,1], xFeatures[:,3], xFeatures[:,4], location))
+
+reg = LinearRegression().fit(xFeaturesTrimmed2, yLabels)
+yPredicted  = reg.predict(xFeaturesTrimmed2)
+print("SSE for updated features: " + str(reg._residues))
+print('MSE all features: ' + str(np.mean(np.square(np.subtract(yLabels,yPredicted)))))
+
+
+
+#######################################################################################
+print("Iteration 3")
+
+# add in feature 2
+
+xFeaturesTrimmed3 = np.column_stack((xFeatures[:,1], xFeatures[:,2], xFeatures[:,3], xFeatures[:,4], location))
+# continue to take the log of feature 1
+x1 = xFeatures[:,[1]]
+x1 = np.log(x1)
+reg = LinearRegression().fit(x1 , yLabels)
+predictedY = reg.predict(x1)
+print("SSE for single variable1 (mod appraoch):" + str(reg._residues))
+
+# add in 2rd feature (not transformed)
+x2 = xFeatures[:,[2]]
+
+reg = LinearRegression().fit(x2 , yLabels)
+predictedY = reg.predict(x2)
+print("SSE for single variable 2 (no transform):" + str(reg._residues))
+
+# continue to take log of 3rd feature
+x3 = xFeatures[:,[3]]
+x3 = np.log(x3)
+
+reg = LinearRegression().fit(x3 , yLabels)
+predictedY = reg.predict(x3)
+print("SSE for single variable 3 (log):" + str(reg._residues))
+
+#  4th feature (no transform)
+x4 = xFeatures[:,[4]]
+reg = LinearRegression().fit(x4 , yLabels)
+predictedY = reg.predict(x4)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 4 (no transform):" + str(reg._residues))
+plt.figure()
+plt.scatter(x4, yLabels, color = 'g')
+plt.plot(x4, predictedY, color = 'r')
+
+
+# log of combined features 5 and 6
+location = np.log(location)
+reg = LinearRegression().fit(location , yLabels)
+predictedY = reg.predict(location)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for combined variable 5 and 6 (log):" + str(reg._residues))
+
+reg = LinearRegression().fit(xFeaturesTrimmed3, yLabels)
+yPredicted  = reg.predict(xFeaturesTrimmed3)
+print("SSE for updated features: " + str(reg._residues))
+print('MSE all features: ' + str(np.mean(np.square(np.subtract(yLabels,yPredicted)))))
+
+
+#######################################################################################
+print("Iteration 4")
+
+#combine features 5 & 6
+location = xFeatures[:,5]+xFeatures[:,6]
+#reshape location array
+location = location.reshape(-1,1)
+
+#Drop out features with highest residuals (x1, x2)
+xFeaturesTrimmed4 = np.column_stack((xFeatures[:,3], xFeatures[:,4], location))
+
+# continue to take log of 3rd feature
+x3 = xFeatures[:,[3]]
+x3 = np.log(x3)
+
+reg = LinearRegression().fit(x3 , yLabels)
+predictedY = reg.predict(x3)
+print("SSE for single variable 3 (log):" + str(reg._residues))
+
+#  4th feature (no transform)
+x4 = xFeatures[:,[4]]
+reg = LinearRegression().fit(x4 , yLabels)
+predictedY = reg.predict(x4)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 4 (no transform):" + str(reg._residues))
+plt.figure()
+plt.scatter(x4, yLabels, color = 'g')
+plt.plot(x4, predictedY, color = 'r')
+
+
+# log of combined features 5 and 6
+location = np.log(location)
+reg = LinearRegression().fit(location , yLabels)
+predictedY = reg.predict(location)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for combined variable 5 and 6 (log):" + str(reg._residues))
+
+reg = LinearRegression().fit(xFeaturesTrimmed4, yLabels)
+yPredicted  = reg.predict(xFeaturesTrimmed4)
+print("SSE for updated features: " + str(reg._residues))
+print('MSE all features: ' + str(np.mean(np.square(np.subtract(yLabels,yPredicted)))))
 
 exit
 
