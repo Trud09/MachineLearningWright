@@ -1,6 +1,10 @@
 print("CS6840 HW 1")
 import os
 os.chdir('c:\\Users') # Replace with path for executing. (so many danged can't find file errors....!)
+# -*- coding: utf-8 -*-
+print("CS6840 HW 1")
+#import os
+#os.chdir('c:\\Users') # Replace with path for executing. (so many danged can't find file errors....!)
 import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn import preprocessing
@@ -46,50 +50,80 @@ OLS Derivation
 """
 def ordinaryLeastSquares(xFeatures, Ylabels):
 
-	XTX = np.dot(xFeatures.T,Xfeatures)
-	XTY = np.dot(X.T,Y)
-	parameters = np.dot(np.linalg.inv(XTX),XTY)
-	print parameters
+	XTX = np.dot(xFeatures.T,xFeatures)
+	XTY = np.dot(xFeatures.T, Ylabels)
+	OLS_params = np.dot(np.linalg.inv(XTX),XTY)
+	print(OLS_params)
 
 """
-***RANDOM INITIALIZATION***
 Calculate the hypothesis = X * theta
 Calculate the cost = (h - y)^2 
 Calculate the gradient = sum(X' * loss )/ m  #this is the part that makes it batch
-Update the parameters theta = theta - alpha * gradient
+Update the parameters theta = theta - alpha * gradient of cost 
 Check if cost is less than epsilon
 """
-def bgd(xFeatures, Ylabels, alpha, epsilon, epochs)
-
-	#Cost = sum([(theta_0 + theta_1*x[i] - y[i])**2 for i in range(m)])
-
-
+def bgd(xFeatures, yLabels, alpha, epsilon, epochs):
+    i = 0
+    theta = np.array([[0 for x in range(numCols-1)]], ndmin=2)
+   # print(theta)
+    #theta.shape = (numCols-1,1)
+    theta = np.transpose(theta)
+    print(theta)
+    Cost = epsilon + 1
+    while i < epochs or Cost < epsilon:
+        Hypo = np.dot(xFeatures, theta)
+        Diff = Hypo - yLabels
+       # print(Diff)
+        print(Hypo)
+       # print(yLabels)
+        Cost = (1/2*numRows) * np.sum(np.square(Diff) ) 
+        print(Cost)
+        theta = theta - alpha * (1.0/numRows) * np.dot(np.transpose(xFeatures), Diff)
+        print(theta)
+        i += 1
+        print(i)
+    return theta
+    
+    
 """
 TODO
 3. Test each algorithm on the reDataUCI dataset from Task 1. Compare the
 parameters found in Task 1 versus the parameters found with your OLS
 and BGD code. Compare the SSE and MSE of all three approaches.
 What might explain the differences (if any)?
-
 4. Report the affects of trying a variety of learning rates and number of
 epochs. What seems to be a good learning rate and number of epochs
 for this data set? Plot the cost of the bgd function after each epoch for
 a variety of number of epochs and learning rate. For each plot note the
 behavior of the cost function. Is it decreasing as expected? Note any
 issues that may be diagnosed via these plots.
+"""
+test = bgd(xFeatures, yLabels, .0000001, .1, 3)
+
+ordinaryLeastSquares(xFeatures, yLabels)
+
+for 
+
+
+
+
+
+
+
+
+"""
+
+
 
 5. Repeat tasks 1.3, 2.3 and 2.4 for another dataset of your choosing. You
 may use any dataset you wish from any public repository (UCI, Kaggle,
 etc.). Give a brief description of the dataset (features, labels).
-
 6. CS 6840 only - come up with a methodology for comparing the speed
 of your OLS and BGD implementation as a function of the size of some
 artificial training data (that you will have to create). Plot the speed of
 each algorithm as a function of the number of samples in the training
 data. You may also have to adjust the number of features to get noticable
 differences between your OLS code and your BGD code.
-
-
 """
 
 
@@ -98,4 +132,3 @@ differences between your OLS code and your BGD code.
 #https://the-tarzan.com/2012/10/27/calculate-ols-regression-manually-in-python-using-numpy/
 #https://machinelearningmastery.com/gradient-descent-for-machine-learning/
 #https://towardsdatascience.com/difference-between-batch-gradient-descent-and-stochastic-gradient-descent-1187f1291aa1
-
