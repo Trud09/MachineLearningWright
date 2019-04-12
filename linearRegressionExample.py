@@ -26,6 +26,7 @@ import matplotlib.pyplot as plt
 #load data - skip first row which only contains metadata
 reData = np.loadtxt('reDataUCI.csv', delimiter = ",", skiprows = 1)
 
+
 numRows = np.size(reData,0)
 numCols = np.size(reData,1)
 
@@ -40,42 +41,36 @@ numCols = np.size(reData,1)
 
 xFeatures = reData[:,0:numCols-1]
 
-#debug statements
-location = (xFeatures[:,5] + xFeatures[:,6])
-
-
-#location = np.log(location)
-
 #Last column are the labels
 yLabels = reData[:,7]
 
-#ID number
+# #ID number
 # plt.figure()
 # plt.title('ID Number vs. Y')
 # plt.ylabel('Y label')
 # plt.xlabel('ID Number')
 # plt.scatter(xFeatures[:,0],yLabels)
 
-# transaction date
-plt.figure()
-plt.title('Transaction Date vs. Y')
-plt.ylabel('Y label')
-plt.xlabel('Transaction Date')
-plt.scatter(xFeatures[:,1],yLabels)
+# # transaction date
+# plt.figure()
+# plt.title('Transaction Date vs. Y')
+# plt.ylabel('Y label')
+# plt.xlabel('Transaction Date')
+# plt.scatter(xFeatures[:,1],yLabels)
 
-# # house age -- may be a good polynomial transform (x^2)
+# # house age
 # plt.figure()
 # plt.title('House Age vs. Y')
 # plt.ylabel('Y label')
 # plt.xlabel('House Age (years)')
 # plt.scatter(xFeatures[:,2],yLabels)
 
-# # distance to nearest MRT station -- may be good to use log 
-# plt.figure()
-# plt.title('Dist to MRT vs. Y')
-# plt.ylabel('Y label')
-# plt.xlabel('Dist to MRT (meters)')
-# plt.scatter(xFeatures[:,3],yLabels)
+# distance to nearest MRT station
+plt.figure()
+plt.title('Dist to MRT vs. Y')
+plt.ylabel('Y label')
+plt.xlabel('Dist to MRT (meters)')
+plt.scatter(xFeatures[:,3],yLabels)
 
 # number of convenience stores
 plt.figure()
@@ -85,32 +80,19 @@ plt.xlabel('Num Stores (int)')
 plt.scatter(xFeatures[:,4],yLabels)
 
 
-# # lat coord
-# plt.figure()
-# plt.title('Lat Coord vs. Y')
-# plt.ylabel('Y label')
-# plt.xlabel('Num Stores (int)')
-# plt.scatter(xFeatures[:,5],yLabels)
-
-# #long coord
-# plt.figure()
-# plt.title('Long coord vs. Y')
-# plt.ylabel('Y label')
-# plt.xlabel('Long Coord (double)')
-# plt.scatter(xFeatures[:,6], yLabels)
-
-#location (lat+long)
+# lat coord
 plt.figure()
-plt.title('geolocation vs. Y')
+plt.title('Lat Coord vs. Y')
 plt.ylabel('Y label')
-plt.xlabel('geolcation (double)')
-plt.scatter(location, yLabels)
+plt.xlabel('Num Stores (int)')
+plt.scatter(xFeatures[:,5],yLabels)
 
+#long coord
 plt.figure()
-plt.title('outlier-less geolocation vs. Y')
+plt.title('Long coord vs. Y')
 plt.ylabel('Y label')
-plt.xlabel('geolcation (double)')
-plt.scatter(location, yLabels)
+plt.xlabel('Long Coord (double)')
+plt.scatter(xFeatures[:,6], yLabels)
 
 plt.show()
 
@@ -222,8 +204,9 @@ plt.colorbar()
 plt.show()
 
 
-###########################################################################################
-print("Iteration 1")
+
+#############################################################################################################
+print("iteration 1")
 
 # cut the "bad" variables and see what happens
 xFeaturesTrimmed = np.hstack((xFeatures[:,[1]], xFeatures[:,[2]],xFeatures[:,[3]],xFeatures[:,[4]], xFeatures[:,[5]],xFeatures[:,[6]])       )
@@ -361,209 +344,1140 @@ print("SSE for updated features: " + str(reg._residues))
 print('MSE all features: ' + str(np.mean(np.square(np.subtract(yLabels,yPredicted)))))
 
 
+#################################################################################
+print("iteration 2")
+#load data - skip first row which only contains metadata
+reData = np.loadtxt('reDataUCI.csv', delimiter = ",", skiprows = 1)
+numRows = np.size(reData,0)
+numCols = np.size(reData,1)
+xFeatures = reData[:,0:numCols-1]
+yLabels = reData[:,7]
+
+xFeaturesTrimmed = np.hstack((xFeatures[:,[1]], xFeatures[:,[2]],xFeatures[:,[3]],xFeatures[:,[4]], xFeatures[:,[5]],xFeatures[:,[6]]))
+
+reg = LinearRegression().fit(xFeaturesTrimmed, yLabels)
+print("SSE for trimmed features: " + str(reg._residues))
 
 
-
-############################################################################################################### New tweaks
-
-
-
-
-print("Iteration 2")
-
-#combine features 5 & 6
-location = xFeatures[:,5]+xFeatures[:,6]
-#reshape location array
-location = location.reshape(-1,1)
-
-#next trimmed features version
-xFeaturesTrimmed2 = np.column_stack((xFeatures[:,1], xFeatures[:,3], xFeatures[:,4], location))
+# take the mod 1 of each date to hack off the year
+x1 = xFeatures[:,[1]]
+x1 = x1 % 1
+x1 = np.sqrt(x1)
 
 
-#Peform new transforms
-# continue to take the log of feature 1
+# take the log of feature 1
 x1 = xFeatures[:,[1]]
 x1 = np.log(x1)
 reg = LinearRegression().fit(x1 , yLabels)
 predictedY = reg.predict(x1)
 
 
-
-#print("Coefficent for single variable:" +  str(reg.coef_))
+reg = LinearRegression().fit(x1 , yLabels)
+predictedY = reg.predict(x1)
 print("SSE for single variable1 (mod appraoch):" + str(reg._residues))
-# plt.figure()
-# plt.scatter(x1, yLabels, color = 'g')
-# plt.plot(x1, predictedY, color = 'r')
 
-# log scale 2rd feature
-# x2 = xFeatures[:,[2]]
-# x2 = np.log(x2)
-
-# reg = LinearRegression().fit(x2 , yLabels)
-# predictedY = reg.predict(x2)
-
-#print("Coefficent for single variable:" +  str(reg.coef_))
-#print("SSE for single variable 3 (log):" + str(reg._residues))
-plt.figure()
-plt.scatter(x3, yLabels, color = 'g')
-plt.plot(x3, predictedY, color = 'r')
-
-
-# log 3rd feature
+# log scale 3rd feature
 x3 = xFeatures[:,[3]]
-x3 = np.log(x3)
+x3 = np.log10(x3)
 
 reg = LinearRegression().fit(x3 , yLabels)
 predictedY = reg.predict(x3)
 
 #print("Coefficent for single variable:" +  str(reg.coef_))
 print("SSE for single variable 3 (log):" + str(reg._residues))
-plt.figure()
-plt.scatter(x3, yLabels, color = 'g')
-plt.plot(x3, predictedY, color = 'r')
 
+# sqr 5th feature
+x5 = xFeatures[:,[5]]
+x5 = np.exp2(x5)
 
-# 4th feature (no transform)
-x4 = xFeatures[:,[4]]
-reg = LinearRegression().fit(x4 , yLabels)
-predictedY = reg.predict(x4)
+reg = LinearRegression().fit(x5 , yLabels)
+predictedY = reg.predict(x5)
 
 #print("Coefficent for single variable:" +  str(reg.coef_))
-print("SSE for single variable 4 (no transform):" + str(reg._residues))
-plt.figure()
-plt.scatter(x4, yLabels, color = 'g')
-plt.plot(x4, predictedY, color = 'r')
+print("SSE for single variable 5 (exp2):" + str(reg._residues))
 
 
-#print("Coefficent for single variable:" +  str(reg.coef_))
-# print("SSE for single variable 6 (square):" + str(reg._residues))
-# plt.figure()
-# plt.scatter(location, yLabels, color = 'g')
-# plt.plot(location, predictedY, color = 'r')
+# sqr 6th feature
+x6 = xFeatures[:,[6]]
+x6 = np.exp2(x6)
 
-# log of combined features 5 and 6
-#location = xFeatures[:,5]+xFeatures[:,6] #np.array()
-location = np.log(location)
-#location = location.reshape(-1,1)
-
-reg = LinearRegression().fit(location , yLabels)
-predictedY = reg.predict(location)
+reg = LinearRegression().fit(x6 , yLabels)
+predictedY = reg.predict(x6)
 
 #print("Coefficent for single variable:" +  str(reg.coef_))
-print("SSE for combined variable 5 and 6 (log):" + str(reg._residues))
+print("SSE for single variable 6 (exp2):" + str(reg._residues))
 
 #Fit the model again with the updated features:
 xFeatures[:,1] = np.log(xFeatures[:,1])
 xFeatures[:,3] = np.log(xFeatures[:,3])
-location = np.log(location)
+xFeatures[:,5] = np.square(xFeatures[:,5])
+xFeatures[:,6] = np.square(xFeatures[:,6])
 
-#xFeaturesTrimmed2 = np.column_stack((xFeatures[:,1], xFeatures[:,3], xFeatures[:,4], location))
-
-reg = LinearRegression().fit(xFeaturesTrimmed2, yLabels)
-yPredicted  = reg.predict(xFeaturesTrimmed2)
+reg = LinearRegression().fit(xFeatures, yLabels)
+yPredicted  = reg.predict(xFeatures)
 print("SSE for updated features: " + str(reg._residues))
 print('MSE all features: ' + str(np.mean(np.square(np.subtract(yLabels,yPredicted)))))
 
 
+#################################################################################
+print("iteration 3")
+#load data - skip first row which only contains metadata
+reData = np.loadtxt('reDataUCI.csv', delimiter = ",", skiprows = 1)
+numRows = np.size(reData,0)
+numCols = np.size(reData,1)
+xFeatures = reData[:,0:numCols-1]
+yLabels = reData[:,7]
 
-#######################################################################################
-print("Iteration 3")
+# combine features 5 & 6 (adding features)
+location = xFeatures[:,5]+xFeatures[:,6]
+#reshape location array
+location = location.reshape(-1,1)
+print("combine lats and longs by adding")
+# trimming: xFeatures[:,[5]],xFeatures[:,[6]]
+print("trimmed x5 and x6, combined together")
+xFeaturesTrimmed = np.hstack((xFeatures[:,[1]], xFeatures[:,[2]],xFeatures[:,[3]],xFeatures[:,[4]], location)) 
 
-# add in feature 2
+##Setting xFeatures to the new trimmed features
+#xFeatures = xFeaturesTrimmed
 
-xFeaturesTrimmed3 = np.column_stack((xFeatures[:,1], xFeatures[:,2], xFeatures[:,3], xFeatures[:,4], location))
-# continue to take the log of feature 1
+reg = LinearRegression().fit(xFeaturesTrimmed, yLabels)
+print("SSE for trimmed features: " + str(reg._residues))
+
+
+# take the mod 1 of each date to hack off the year
+x1 = xFeatures[:,[1]]
+x1 = x1 % 1
+x1 = np.sqrt(x1)
+
+
+# take the log of feature 1
 x1 = xFeatures[:,[1]]
 x1 = np.log(x1)
 reg = LinearRegression().fit(x1 , yLabels)
 predictedY = reg.predict(x1)
+
+
+reg = LinearRegression().fit(x1 , yLabels)
+predictedY = reg.predict(x1)
 print("SSE for single variable1 (mod appraoch):" + str(reg._residues))
 
-# add in 2rd feature (not transformed)
-x2 = xFeatures[:,[2]]
-
-reg = LinearRegression().fit(x2 , yLabels)
-predictedY = reg.predict(x2)
-print("SSE for single variable 2 (no transform):" + str(reg._residues))
-
-# continue to take log of 3rd feature
+# log scale 3rd feature
 x3 = xFeatures[:,[3]]
-x3 = np.log(x3)
+x3 = np.log10(x3)
 
 reg = LinearRegression().fit(x3 , yLabels)
 predictedY = reg.predict(x3)
-print("SSE for single variable 3 (log):" + str(reg._residues))
-
-#  4th feature (no transform)
-x4 = xFeatures[:,[4]]
-reg = LinearRegression().fit(x4 , yLabels)
-predictedY = reg.predict(x4)
 
 #print("Coefficent for single variable:" +  str(reg.coef_))
-print("SSE for single variable 4 (no transform):" + str(reg._residues))
-plt.figure()
-plt.scatter(x4, yLabels, color = 'g')
-plt.plot(x4, predictedY, color = 'r')
+print("SSE for single variable 3 (log):" + str(reg._residues))
+
+# # log 5th feature
+# x5 = xFeatures[:,[5]]
+# x5 = np.exp2(x5)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 5 (exp2):" + str(reg._residues))
+
+# # square 5th feature
+# x5 = xFeatures[:,[5]]
+# x5 = np.square(x5)
 
 
-# log of combined features 5 and 6
-location = np.log(location)
+# reg = LinearRegression().fit(x5 , yLabels)
+# predictedY = reg.predict(x5)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 5 (square):" + str(reg._residues))
+
+
+# # exp2 6th feature
+# x6 = xFeatures[:,[6]]
+# x6 = np.exp2(x6)
+
+# #print("Coefficent for single variable:" +  str(reg.coef_))
+# print("SSE for single variable 6 (exp2):" + str(reg._residues))
+
+# # square 6th feature
+# x6 = xFeatures[:,[6]]
+# x6 = np.square(x6)
+
+# reg = LinearRegression().fit(x6 , yLabels)
+# predictedY = reg.predict(x6)
+
+# #print("Coefficent for single variable:" +  str(reg.coef_))
+# print("SSE for single variable 6 (square):" + str(reg._residues))
+
+#square the location data
+location = np.square(location)
 reg = LinearRegression().fit(location , yLabels)
 predictedY = reg.predict(location)
 
 #print("Coefficent for single variable:" +  str(reg.coef_))
-print("SSE for combined variable 5 and 6 (log):" + str(reg._residues))
+print("SSE for combined added variables 5 & 6 (square):" + str(reg._residues))
 
-reg = LinearRegression().fit(xFeaturesTrimmed3, yLabels)
-yPredicted  = reg.predict(xFeaturesTrimmed3)
+
+#Fit the model again with the updated features:
+xFeatures[:,1] = np.sqrt(xFeatures[:,1])
+xFeatures[:,3] = np.log(xFeatures[:,3])
+
+
+reg = LinearRegression().fit(xFeatures, yLabels)
+yPredicted  = reg.predict(xFeatures)
 print("SSE for updated features: " + str(reg._residues))
 print('MSE all features: ' + str(np.mean(np.square(np.subtract(yLabels,yPredicted)))))
 
 
-#######################################################################################
-print("Iteration 4")
 
-#combine features 5 & 6
-location = xFeatures[:,5]+xFeatures[:,6]
+#################################################################################
+print("iteration 4")
+#load data - skip first row which only contains metadata
+reData = np.loadtxt('reDataUCI.csv', delimiter = ",", skiprows = 1)
+numRows = np.size(reData,0)
+numCols = np.size(reData,1)
+xFeatures = reData[:,0:numCols-1]
+yLabels = reData[:,7]
+
+# combine features 5 & 6 (adding features)
+location = xFeatures[:,5]*xFeatures[:,6]
+#reshape location array
+location = location.reshape(-1,1)
+print("combine lats and longs by multiplying")
+# trimming: xFeatures[:,[5]],xFeatures[:,[6]]
+print("trimmed x5 and x6, combined together")
+xFeaturesTrimmed = np.hstack((xFeatures[:,[1]], xFeatures[:,[2]],xFeatures[:,[3]],xFeatures[:,[4]], location)) 
+
+##Setting xFeatures to the new trimmed features
+#xFeatures = xFeaturesTrimmed
+
+reg = LinearRegression().fit(xFeaturesTrimmed, yLabels)
+print("SSE for trimmed features: " + str(reg._residues))
+
+
+# take the mod 1 of each date to hack off the year
+x1 = xFeatures[:,[1]]
+x1 = x1 % 1
+x1 = np.sqrt(x1)
+
+
+# take the log of feature 1
+x1 = xFeatures[:,[1]]
+x1 = np.log(x1)
+reg = LinearRegression().fit(x1 , yLabels)
+predictedY = reg.predict(x1)
+
+
+reg = LinearRegression().fit(x1 , yLabels)
+predictedY = reg.predict(x1)
+print("SSE for single variable1 (mod appraoch):" + str(reg._residues))
+
+# log scale 3rd feature
+x3 = xFeatures[:,[3]]
+x3 = np.log10(x3)
+
+reg = LinearRegression().fit(x3 , yLabels)
+predictedY = reg.predict(x3)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 3 (log):" + str(reg._residues))
+
+# # log 5th feature
+# x5 = xFeatures[:,[5]]
+# x5 = np.exp2(x5)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 5 (exp2):" + str(reg._residues))
+
+# # square 5th feature
+# x5 = xFeatures[:,[5]]
+# x5 = np.square(x5)
+
+
+# reg = LinearRegression().fit(x5 , yLabels)
+# predictedY = reg.predict(x5)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 5 (square):" + str(reg._residues))
+
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for combined multiplied variables 5 & 6 (no transform):" + str(reg._residues))
+
+
+#Fit the model again with the updated features:
+xFeatures[:,1] = np.sqrt(xFeatures[:,1])
+xFeatures[:,3] = np.log(xFeatures[:,3])
+
+
+reg = LinearRegression().fit(xFeatures, yLabels)
+yPredicted  = reg.predict(xFeatures)
+print("SSE for updated features: " + str(reg._residues))
+print('MSE all features: ' + str(np.mean(np.square(np.subtract(yLabels,yPredicted)))))
+
+
+#################################################################################
+print("iteration 5")
+print("multiplying the lat and long features results in a lower SSE than adding the features")
+print("now we will square the combined multiplied lat and longs")
+
+
+#load data - skip first row which only contains metadata
+reData = np.loadtxt('reDataUCI.csv', delimiter = ",", skiprows = 1)
+numRows = np.size(reData,0)
+numCols = np.size(reData,1)
+xFeatures = reData[:,0:numCols-1]
+yLabels = reData[:,7]
+
+# combine features 5 & 6 (adding features)
+location = xFeatures[:,5]*xFeatures[:,6]
+#reshape location array
+location = location.reshape(-1,1)
+print("combine lats and longs by multiplying")
+# trimming: xFeatures[:,[5]],xFeatures[:,[6]]
+print("trimmed x5 and x6, combined together")
+xFeaturesTrimmed = np.hstack((xFeatures[:,[1]], xFeatures[:,[2]],xFeatures[:,[3]],xFeatures[:,[4]], location)) 
+
+##Setting xFeatures to the new trimmed features
+#xFeatures = xFeaturesTrimmed
+
+reg = LinearRegression().fit(xFeaturesTrimmed, yLabels)
+print("SSE for trimmed features: " + str(reg._residues))
+
+
+# take the mod 1 of each date to hack off the year
+x1 = xFeatures[:,[1]]
+x1 = x1 % 1
+x1 = np.sqrt(x1)
+
+
+# take the log of feature 1
+x1 = xFeatures[:,[1]]
+x1 = np.log(x1)
+reg = LinearRegression().fit(x1 , yLabels)
+predictedY = reg.predict(x1)
+
+
+reg = LinearRegression().fit(x1 , yLabels)
+predictedY = reg.predict(x1)
+print("SSE for single variable1 (mod appraoch):" + str(reg._residues))
+
+# log scale 3rd feature
+x3 = xFeatures[:,[3]]
+x3 = np.log10(x3)
+
+reg = LinearRegression().fit(x3 , yLabels)
+predictedY = reg.predict(x3)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 3 (log):" + str(reg._residues))
+
+# # log 5th feature
+# x5 = xFeatures[:,[5]]
+# x5 = np.exp2(x5)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 5 (exp2):" + str(reg._residues))
+
+# # square 5th feature
+# x5 = xFeatures[:,[5]]
+# x5 = np.square(x5)
+
+
+# reg = LinearRegression().fit(x5 , yLabels)
+# predictedY = reg.predict(x5)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 5 (square):" + str(reg._residues))
+
+location = np.square(location)
+reg = LinearRegression().fit(location, yLabels)
+predictedY = reg.predict(location)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for combined multiplied variables 5 & 6 (square):" + str(reg._residues))
+
+
+#Fit the model again with the updated features:
+xFeatures[:,1] = np.sqrt(xFeatures[:,1])
+xFeatures[:,3] = np.log(xFeatures[:,3])
+location = np.square(location)
+
+reg = LinearRegression().fit(xFeatures, yLabels)
+yPredicted  = reg.predict(xFeatures)
+print("SSE for updated features: " + str(reg._residues))
+print('MSE all features: ' + str(np.mean(np.square(np.subtract(yLabels,yPredicted)))))
+
+
+
+#################################################################################
+print("iteration 6")
+print("squaring the multiplied lat and long features increases SSE")
+print("now we will take the log of the combined multiplied lat and longs")
+
+
+#load data - skip first row which only contains metadata
+reData = np.loadtxt('reDataUCI.csv', delimiter = ",", skiprows = 1)
+numRows = np.size(reData,0)
+numCols = np.size(reData,1)
+xFeatures = reData[:,0:numCols-1]
+yLabels = reData[:,7]
+
+# combine features 5 & 6 (adding features)
+location = xFeatures[:,5]*xFeatures[:,6]
+#reshape location array
+location = location.reshape(-1,1)
+print("combine lats and longs by multiplying")
+# trimming: xFeatures[:,[5]],xFeatures[:,[6]]
+print("trimmed x5 and x6, combined together")
+xFeaturesTrimmed = np.hstack((xFeatures[:,[1]], xFeatures[:,[2]],xFeatures[:,[3]],xFeatures[:,[4]], location)) 
+
+##Setting xFeatures to the new trimmed features
+#xFeatures = xFeaturesTrimmed
+
+reg = LinearRegression().fit(xFeaturesTrimmed, yLabels)
+print("SSE for trimmed features: " + str(reg._residues))
+
+
+# take the mod 1 of each date to hack off the year
+x1 = xFeatures[:,[1]]
+x1 = x1 % 1
+x1 = np.sqrt(x1)
+
+
+# take the log of feature 1
+x1 = xFeatures[:,[1]]
+x1 = np.log(x1)
+reg = LinearRegression().fit(x1 , yLabels)
+predictedY = reg.predict(x1)
+
+
+reg = LinearRegression().fit(x1 , yLabels)
+predictedY = reg.predict(x1)
+print("SSE for single variable1 (mod appraoch):" + str(reg._residues))
+
+# log scale 3rd feature
+x3 = xFeatures[:,[3]]
+x3 = np.log10(x3)
+
+reg = LinearRegression().fit(x3 , yLabels)
+predictedY = reg.predict(x3)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 3 (log):" + str(reg._residues))
+
+# # log 5th feature
+# x5 = xFeatures[:,[5]]
+# x5 = np.exp2(x5)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 5 (exp2):" + str(reg._residues))
+
+# # square 5th feature
+# x5 = xFeatures[:,[5]]
+# x5 = np.square(x5)
+
+
+# reg = LinearRegression().fit(x5 , yLabels)
+# predictedY = reg.predict(x5)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 5 (square):" + str(reg._residues))
+
+location = np.log(location)
+reg = LinearRegression().fit(location, yLabels)
+predictedY = reg.predict(location)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for combined multiplied variables 5 & 6 (square):" + str(reg._residues))
+
+
+#Fit the model again with the updated features:
+xFeatures[:,1] = np.sqrt(xFeatures[:,1])
+xFeatures[:,3] = np.log(xFeatures[:,3])
+location = np.log(location)
+
+reg = LinearRegression().fit(xFeatures, yLabels)
+yPredicted  = reg.predict(xFeatures)
+print("SSE for updated features: " + str(reg._residues))
+print('MSE all features: ' + str(np.mean(np.square(np.subtract(yLabels,yPredicted)))))
+
+
+#################################################################################
+print("iteration 7")
+print("taking the log of the multiplied lat and long features also increases the SSE")
+print("now we will cube the combined multiplied lat and longs")
+
+
+#load data - skip first row which only contains metadata
+reData = np.loadtxt('reDataUCI.csv', delimiter = ",", skiprows = 1)
+numRows = np.size(reData,0)
+numCols = np.size(reData,1)
+xFeatures = reData[:,0:numCols-1]
+yLabels = reData[:,7]
+
+# combine features 5 & 6 (adding features)
+location = xFeatures[:,5]*xFeatures[:,6]
+#reshape location array
+location = location.reshape(-1,1)
+print("combine lats and longs by multiplying")
+# trimming: xFeatures[:,[5]],xFeatures[:,[6]]
+print("trimmed x5 and x6, combined together")
+xFeaturesTrimmed = np.hstack((xFeatures[:,[1]], xFeatures[:,[2]],xFeatures[:,[3]],xFeatures[:,[4]], location)) 
+
+##Setting xFeatures to the new trimmed features
+#xFeatures = xFeaturesTrimmed
+
+reg = LinearRegression().fit(xFeaturesTrimmed, yLabels)
+print("SSE for trimmed features: " + str(reg._residues))
+
+
+# take the mod 1 of each date to hack off the year
+x1 = xFeatures[:,[1]]
+x1 = x1 % 1
+x1 = np.sqrt(x1)
+
+
+# take the log of feature 1
+x1 = xFeatures[:,[1]]
+x1 = np.log(x1)
+reg = LinearRegression().fit(x1 , yLabels)
+predictedY = reg.predict(x1)
+
+
+reg = LinearRegression().fit(x1 , yLabels)
+predictedY = reg.predict(x1)
+print("SSE for single variable1 (mod appraoch):" + str(reg._residues))
+
+# log scale 3rd feature
+x3 = xFeatures[:,[3]]
+x3 = np.log10(x3)
+
+reg = LinearRegression().fit(x3 , yLabels)
+predictedY = reg.predict(x3)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 3 (log):" + str(reg._residues))
+
+# # log 5th feature
+# x5 = xFeatures[:,[5]]
+# x5 = np.exp2(x5)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 5 (exp2):" + str(reg._residues))
+
+# # square 5th feature
+# x5 = xFeatures[:,[5]]
+# x5 = np.square(x5)
+
+
+# reg = LinearRegression().fit(x5 , yLabels)
+# predictedY = reg.predict(x5)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 5 (square):" + str(reg._residues))
+
+location = np.power(location, 3)
+reg = LinearRegression().fit(location, yLabels)
+predictedY = reg.predict(location)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for combined multiplied variables 5 & 6 (cubed):" + str(reg._residues))
+
+
+#Fit the model again with the updated features:
+xFeatures[:,1] = np.sqrt(xFeatures[:,1])
+xFeatures[:,3] = np.log(xFeatures[:,3])
+location = np.log(location)
+
+reg = LinearRegression().fit(xFeatures, yLabels)
+yPredicted  = reg.predict(xFeatures)
+print("SSE for updated features: " + str(reg._residues))
+print('MSE all features: ' + str(np.mean(np.square(np.subtract(yLabels,yPredicted)))))
+
+
+#################################################################################
+print("iteration 8")
+print("cubing the multiplied lat and long features increases the SSE more than squaring")
+print("now we will take the square root of the combined multiplied lat and longs")
+
+
+#load data - skip first row which only contains metadata
+reData = np.loadtxt('reDataUCI.csv', delimiter = ",", skiprows = 1)
+numRows = np.size(reData,0)
+numCols = np.size(reData,1)
+xFeatures = reData[:,0:numCols-1]
+yLabels = reData[:,7]
+
+# combine features 5 & 6 (adding features)
+location = xFeatures[:,5]*xFeatures[:,6]
+#reshape location array
+location = location.reshape(-1,1)
+print("combine lats and longs by multiplying")
+# trimming: xFeatures[:,[5]],xFeatures[:,[6]]
+print("trimmed x5 and x6, combined together")
+xFeaturesTrimmed = np.hstack((xFeatures[:,[1]], xFeatures[:,[2]],xFeatures[:,[3]],xFeatures[:,[4]], location)) 
+
+##Setting xFeatures to the new trimmed features
+#xFeatures = xFeaturesTrimmed
+
+reg = LinearRegression().fit(xFeaturesTrimmed, yLabels)
+print("SSE for trimmed features: " + str(reg._residues))
+
+
+# take the mod 1 of each date to hack off the year
+x1 = xFeatures[:,[1]]
+x1 = x1 % 1
+x1 = np.sqrt(x1)
+
+
+# take the log of feature 1
+x1 = xFeatures[:,[1]]
+x1 = np.log(x1)
+reg = LinearRegression().fit(x1 , yLabels)
+predictedY = reg.predict(x1)
+
+
+reg = LinearRegression().fit(x1 , yLabels)
+predictedY = reg.predict(x1)
+print("SSE for single variable1 (mod appraoch):" + str(reg._residues))
+
+# log scale 3rd feature
+x3 = xFeatures[:,[3]]
+x3 = np.log10(x3)
+
+reg = LinearRegression().fit(x3 , yLabels)
+predictedY = reg.predict(x3)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 3 (log):" + str(reg._residues))
+
+# # log 5th feature
+# x5 = xFeatures[:,[5]]
+# x5 = np.exp2(x5)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 5 (exp2):" + str(reg._residues))
+
+# # square 5th feature
+# x5 = xFeatures[:,[5]]
+# x5 = np.square(x5)
+
+
+# reg = LinearRegression().fit(x5 , yLabels)
+# predictedY = reg.predict(x5)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 5 (square):" + str(reg._residues))
+
+location = np.sqrt(location)
+reg = LinearRegression().fit(location, yLabels)
+predictedY = reg.predict(location)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for combined multiplied variables 5 & 6 (sqrt):" + str(reg._residues))
+
+
+#Fit the model again with the updated features:
+xFeatures[:,1] = np.sqrt(xFeatures[:,1])
+xFeatures[:,3] = np.log(xFeatures[:,3])
+location = np.log(location)
+
+reg = LinearRegression().fit(xFeatures, yLabels)
+yPredicted  = reg.predict(xFeatures)
+print("SSE for updated features: " + str(reg._residues))
+print('MSE all features: ' + str(np.mean(np.square(np.subtract(yLabels,yPredicted)))))
+
+
+
+#################################################################################
+print("iteration 9")
+print("taking the sq rt of the multiplied lat and long features has a similiar effect to the log")
+print("the greatest reduction in SSE for the combined lat and long features is not to transform the features")
+
+
+
+#load data - skip first row which only contains metadata
+reData = np.loadtxt('reDataUCI.csv', delimiter = ",", skiprows = 1)
+numRows = np.size(reData,0)
+numCols = np.size(reData,1)
+xFeatures = reData[:,0:numCols-1]
+yLabels = reData[:,7]
+# combine features 5 & 6 (adding features)
+location = xFeatures[:,5]*xFeatures[:,6]
 #reshape location array
 location = location.reshape(-1,1)
 
-#Drop out features with highest residuals (x1, x2)
-xFeaturesTrimmed4 = np.column_stack((xFeatures[:,3], xFeatures[:,4], location))
+xFeaturesTrimmed = np.hstack((xFeatures[:,[1]], xFeatures[:,[2]],xFeatures[:,[3]],xFeatures[:,[4]], location)) 
 
-# continue to take log of 3rd feature
+##Setting xFeatures to the new trimmed features
+#xFeatures = xFeaturesTrimmed
+
+reg = LinearRegression().fit(xFeaturesTrimmed, yLabels)
+print("SSE for trimmed features: " + str(reg._residues))
+
+
+# take the mod 1 of each date to hack off the year
+x1 = xFeatures[:,[1]]
+x1 = x1 % 1
+x1 = np.sqrt(x1)
+
+
+# take the log of feature 1
+x1 = xFeatures[:,[1]]
+x1 = np.log(x1)
+reg = LinearRegression().fit(x1 , yLabels)
+predictedY = reg.predict(x1)
+
+
+reg = LinearRegression().fit(x1 , yLabels)
+predictedY = reg.predict(x1)
+print("SSE for single variable1 (mod appraoch):" + str(reg._residues))
+
+# log scale 3rd feature
 x3 = xFeatures[:,[3]]
-x3 = np.log(x3)
+x3 = np.log10(x3)
 
 reg = LinearRegression().fit(x3 , yLabels)
 predictedY = reg.predict(x3)
-print("SSE for single variable 3 (log):" + str(reg._residues))
-
-#  4th feature (no transform)
-x4 = xFeatures[:,[4]]
-reg = LinearRegression().fit(x4 , yLabels)
-predictedY = reg.predict(x4)
 
 #print("Coefficent for single variable:" +  str(reg.coef_))
-print("SSE for single variable 4 (no transform):" + str(reg._residues))
-plt.figure()
-plt.scatter(x4, yLabels, color = 'g')
-plt.plot(x4, predictedY, color = 'r')
+print("SSE for single variable 3 (log):" + str(reg._residues))
+
+# # log 5th feature
+# x5 = xFeatures[:,[5]]
+# x5 = np.exp2(x5)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 5 (exp2):" + str(reg._residues))
+
+# # square 5th feature
+# x5 = xFeatures[:,[5]]
+# x5 = np.square(x5)
 
 
-# log of combined features 5 and 6
-location = np.log(location)
-reg = LinearRegression().fit(location , yLabels)
+# reg = LinearRegression().fit(x5 , yLabels)
+# predictedY = reg.predict(x5)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 5 (square):" + str(reg._residues))
+
+reg = LinearRegression().fit(location, yLabels)
 predictedY = reg.predict(location)
 
 #print("Coefficent for single variable:" +  str(reg.coef_))
-print("SSE for combined variable 5 and 6 (log):" + str(reg._residues))
+print("SSE for combined multiplied variables 5 & 6 (no transform):" + str(reg._residues))
 
-reg = LinearRegression().fit(xFeaturesTrimmed4, yLabels)
-yPredicted  = reg.predict(xFeaturesTrimmed4)
+
+#Fit the model again with the updated features:
+xFeatures[:,1] = np.sqrt(xFeatures[:,1])
+xFeatures[:,3] = np.log(xFeatures[:,3])
+location = np.log(location)
+
+reg = LinearRegression().fit(xFeatures, yLabels)
+yPredicted  = reg.predict(xFeatures)
 print("SSE for updated features: " + str(reg._residues))
 print('MSE all features: ' + str(np.mean(np.square(np.subtract(yLabels,yPredicted)))))
 
+
+
+#################################################################################
+print("iteration 10")
+print("taking the sq rt of the multiplied lat and long features has a similiar effect to the log")
+print("the greatest reduction in SSE for the combined lat and long features is not to transform the features")
+print("we will manually remove the most the outlier from the graph (id no. 271), and use the original lat and log features")
+print("we will not apply any transformation to x5 and x6")
+#load data - skip first row which only contains metadata
+reData = np.loadtxt('reDataUCI-modified.csv', delimiter = ",", skiprows = 1)
+numRows = np.size(reData,0)
+numCols = np.size(reData,1)
+xFeatures = reData[:,0:numCols-1]
+yLabels = reData[:,7]
+
+
+print("reinserting: xFeatures[:,[5]],xFeatures[:,[6]]")
+xFeaturesTrimmed = np.hstack((xFeatures[:,[1]], xFeatures[:,[2]],xFeatures[:,[3]],xFeatures[:,[4]], xFeatures[:,[5]],xFeatures[:,[6]])) 
+
+##Setting xFeatures to the new trimmed features
+#xFeatures = xFeaturesTrimmed
+
+reg = LinearRegression().fit(xFeaturesTrimmed, yLabels)
+print("SSE for trimmed features: " + str(reg._residues))
+
+
+# take the mod 1 of each date to hack off the year
+x1 = xFeatures[:,[1]]
+x1 = x1 % 1
+x1 = np.sqrt(x1)
+
+
+# take the log of feature 1
+x1 = xFeatures[:,[1]]
+x1 = np.log(x1)
+reg = LinearRegression().fit(x1 , yLabels)
+predictedY = reg.predict(x1)
+
+
+reg = LinearRegression().fit(x1 , yLabels)
+predictedY = reg.predict(x1)
+print("SSE for single variable1 (mod appraoch):" + str(reg._residues))
+
+# log scale 3rd feature
+x3 = xFeatures[:,[3]]
+x3 = np.log10(x3)
+
+reg = LinearRegression().fit(x3 , yLabels)
+predictedY = reg.predict(x3)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 3 (log):" + str(reg._residues))
+
+# # log 5th feature
+x5 = xFeatures[:,[5]]
+# x5 = np.exp2(x5)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+#print("SSE for single variable 5 (exp2):" + str(reg._residues))
+
+# no transformation of 5th feature
+
+reg = LinearRegression().fit(x5, yLabels)
+predictedY = reg.predict(x5)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 5 (no transform):" + str(reg._residues))
+
+# no transformation of 6th feature
+x6 = xFeatures[:,[6]]
+reg = LinearRegression().fit(x6, yLabels)
+predictedY = reg.predict(x6)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 6 (no transform):" + str(reg._residues))
+
+
+#Fit the model again with the updated features:
+xFeatures[:,1] = np.sqrt(xFeatures[:,1])
+xFeatures[:,3] = np.log(xFeatures[:,3])
+
+
+reg = LinearRegression().fit(xFeatures, yLabels)
+yPredicted  = reg.predict(xFeatures)
+print("SSE for updated features: " + str(reg._residues))
+print('MSE all features: ' + str(np.mean(np.square(np.subtract(yLabels,yPredicted)))))
+
+
+
+#################################################################################
+print("iteration 11")
+print("removing an outlier decreased the SSE and the MSE by 5874 and 12.251 reprectively")
+print("the dataset may not respond well to a regression model")
+print("we will now square the lat and long features")
+
+#load data - skip first row which only contains metadata
+reData = np.loadtxt('reDataUCI-modified.csv', delimiter = ",", skiprows = 1)
+numRows = np.size(reData,0)
+numCols = np.size(reData,1)
+xFeatures = reData[:,0:numCols-1]
+yLabels = reData[:,7]
+
+
+print("reinserting: xFeatures[:,[5]],xFeatures[:,[6]]")
+xFeaturesTrimmed = np.hstack((xFeatures[:,[1]], xFeatures[:,[2]],xFeatures[:,[3]],xFeatures[:,[4]], xFeatures[:,[5]],xFeatures[:,[6]])) 
+
+##Setting xFeatures to the new trimmed features
+#xFeatures = xFeaturesTrimmed
+
+reg = LinearRegression().fit(xFeaturesTrimmed, yLabels)
+print("SSE for trimmed features: " + str(reg._residues))
+
+
+# take the mod 1 of each date to hack off the year
+x1 = xFeatures[:,[1]]
+x1 = x1 % 1
+x1 = np.sqrt(x1)
+
+
+# take the log of feature 1
+x1 = xFeatures[:,[1]]
+x1 = np.log(x1)
+reg = LinearRegression().fit(x1 , yLabels)
+predictedY = reg.predict(x1)
+
+
+reg = LinearRegression().fit(x1 , yLabels)
+predictedY = reg.predict(x1)
+print("SSE for single variable1 (mod appraoch):" + str(reg._residues))
+
+# log scale 3rd feature
+x3 = xFeatures[:,[3]]
+x3 = np.log10(x3)
+
+reg = LinearRegression().fit(x3 , yLabels)
+predictedY = reg.predict(x3)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 3 (log):" + str(reg._residues))
+
+# square 5th feature
+x5 = xFeatures[:,[5]]
+x5 = np.square(x5)
+
+
+reg = LinearRegression().fit(x5 , yLabels)
+predictedY = reg.predict(x5)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 5 (square):" + str(reg._residues))
+
+# square 6th feature
+x6 = xFeatures[:,[6]]
+x6 = np.square(x6)
+
+
+reg = LinearRegression().fit(x6 , yLabels)
+predictedY = reg.predict(x6)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 6 (square):" + str(reg._residues))
+
+
+#Fit the model again with the updated features:
+xFeatures[:,1] = np.sqrt(xFeatures[:,1])
+xFeatures[:,3] = np.log(xFeatures[:,3])
+xFeatures[:,5] = np.square(xFeatures[:,5])
+xFeatures[:,6] = np.square(xFeatures[:,6])
+
+reg = LinearRegression().fit(xFeatures, yLabels)
+yPredicted  = reg.predict(xFeatures)
+print("SSE for updated features: " + str(reg._residues))
+print('MSE all features: ' + str(np.mean(np.square(np.subtract(yLabels,yPredicted)))))
+
+
+
+#################################################################################
+print("iteration 12")
+print("squaring the modified lat and long data increased the SSE by 5.5 and 1.3")
+print("we will now recombine the lat and long features by multiplication")
+
+
+#load data - skip first row which only contains metadata
+reData = np.loadtxt('reDataUCI-modified.csv', delimiter = ",", skiprows = 1)
+numRows = np.size(reData,0)
+numCols = np.size(reData,1)
+xFeatures = reData[:,0:numCols-1]
+yLabels = reData[:,7]
+
+# combine features 5 & 6 (adding features)
+location = xFeatures[:,5]*xFeatures[:,6]
+#reshape location array
+location = location.reshape(-1,1)
+
+print("trimming: xFeatures[:,[5]],xFeatures[:,[6]]")
+print("inserting: combined x5 and x6 by multiplication")
+xFeaturesTrimmed = np.hstack((xFeatures[:,[1]], xFeatures[:,[2]],xFeatures[:,[3]],xFeatures[:,[4]], location)) 
+
+##Setting xFeatures to the new trimmed features
+#xFeatures = xFeaturesTrimmed
+
+reg = LinearRegression().fit(xFeaturesTrimmed, yLabels)
+print("SSE for trimmed features: " + str(reg._residues))
+
+
+# take the mod 1 of each date to hack off the year
+x1 = xFeatures[:,[1]]
+x1 = x1 % 1
+x1 = np.sqrt(x1)
+
+
+# take the log of feature 1
+x1 = xFeatures[:,[1]]
+x1 = np.log(x1)
+reg = LinearRegression().fit(x1 , yLabels)
+predictedY = reg.predict(x1)
+
+
+reg = LinearRegression().fit(x1 , yLabels)
+predictedY = reg.predict(x1)
+print("SSE for single variable1 (mod appraoch):" + str(reg._residues))
+
+# log scale 3rd feature
+x3 = xFeatures[:,[3]]
+x3 = np.log10(x3)
+
+reg = LinearRegression().fit(x3 , yLabels)
+predictedY = reg.predict(x3)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 3 (log):" + str(reg._residues))
+
+# the combined x5 and x6 features
+reg = LinearRegression().fit(location , yLabels)
+predictedY = reg.predict(location)
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for combined variables 5 & 6 (square):" + str(reg._residues))
+
+
+#Fit the model again with the updated features:
+xFeatures[:,1] = np.sqrt(xFeatures[:,1])
+xFeatures[:,3] = np.log(xFeatures[:,3])
+
+reg = LinearRegression().fit(xFeatures, yLabels)
+yPredicted  = reg.predict(xFeatures)
+print("SSE for updated features: " + str(reg._residues))
+print('MSE all features: ' + str(np.mean(np.square(np.subtract(yLabels,yPredicted)))))
+
+
+
+
+#################################################################################
+print("iteration 13")
+print("combining the x5 and x6 features by decreased the variable SSE by an average of 5502.238")
+print("however the trimmed features SSE increased by 29.32")
+print("we will now recombine the lat and long features by multiplication")
+
+
+#load data - skip first row which only contains metadata
+reData = np.loadtxt('reDataUCI-modified.csv', delimiter = ",", skiprows = 1)
+numRows = np.size(reData,0)
+numCols = np.size(reData,1)
+xFeatures = reData[:,0:numCols-1]
+yLabels = reData[:,7]
+
+# combine features 5 & 6 (adding features)
+location = xFeatures[:,5]*xFeatures[:,6]
+#reshape location array
+location = location.reshape(-1,1)
+
+print("trimming: xFeatures[:,[5]],xFeatures[:,[6]]")
+print("inserting: combined x5 and x6 by multiplication")
+xFeaturesTrimmed = np.hstack((xFeatures[:,[1]], xFeatures[:,[2]],xFeatures[:,[3]],xFeatures[:,[4]], location)) 
+
+##Setting xFeatures to the new trimmed features
+#xFeatures = xFeaturesTrimmed
+
+reg = LinearRegression().fit(xFeaturesTrimmed, yLabels)
+print("SSE for trimmed features: " + str(reg._residues))
+
+
+# take the mod 1 of each date to hack off the year
+x1 = xFeatures[:,[1]]
+x1 = x1 % 1
+x1 = np.sqrt(x1)
+
+
+# take the log of feature 1
+x1 = xFeatures[:,[1]]
+x1 = np.log(x1)
+reg = LinearRegression().fit(x1 , yLabels)
+predictedY = reg.predict(x1)
+
+
+reg = LinearRegression().fit(x1 , yLabels)
+predictedY = reg.predict(x1)
+print("SSE for single variable1 (mod appraoch):" + str(reg._residues))
+
+# log scale 3rd feature
+x3 = xFeatures[:,[3]]
+x3 = np.log10(x3)
+
+reg = LinearRegression().fit(x3 , yLabels)
+predictedY = reg.predict(x3)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 3 (log):" + str(reg._residues))
+
+# the combined x5 and x6 features
+location = np.sqrt(location)
+reg = LinearRegression().fit(location , yLabels)
+predictedY = reg.predict(location)
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for combined variables 5 & 6 (square):" + str(reg._residues))
+
+
+#Fit the model again with the updated features:
+xFeatures[:,1] = np.sqrt(xFeatures[:,1])
+xFeatures[:,3] = np.log(xFeatures[:,3])
+
+reg = LinearRegression().fit(xFeatures, yLabels)
+yPredicted  = reg.predict(xFeatures)
+print("SSE for updated features: " + str(reg._residues))
+print('MSE all features: ' + str(np.mean(np.square(np.subtract(yLabels,yPredicted)))))
+
+
+#################################################################################
+print("iteration 14")
+
+
+#load data - skip first row which only contains metadata
+reData = np.loadtxt('reDataUCI-modified.csv', delimiter = ",", skiprows = 1)
+numRows = np.size(reData,0)
+numCols = np.size(reData,1)
+xFeatures = reData[:,0:numCols-1]
+yLabels = reData[:,7]
+
+# combine features 5 & 6 (adding features)
+location = xFeatures[:,5]*xFeatures[:,6]
+#reshape location array
+location = location.reshape(-1,1)
+
+print("trimming: xFeatures[:,[5]],xFeatures[:,[6]]")
+print("inserting: combined x5 and x6 by multiplication")
+xFeaturesTrimmed = np.hstack((xFeatures[:,[1]], xFeatures[:,[2]],xFeatures[:,[3]],xFeatures[:,[4]], location)) 
+
+##Setting xFeatures to the new trimmed features
+#xFeatures = xFeaturesTrimmed
+
+reg = LinearRegression().fit(xFeaturesTrimmed, yLabels)
+print("SSE for trimmed features: " + str(reg._residues))
+
+
+# take the mod 1 of each date to hack off the year
+x1 = xFeatures[:,[1]]
+x1 = x1 % 1
+x1 = np.sqrt(x1)
+
+
+# take the log of feature 1
+x1 = xFeatures[:,[1]]
+x1 = np.log(x1)
+reg = LinearRegression().fit(x1 , yLabels)
+predictedY = reg.predict(x1)
+
+
+reg = LinearRegression().fit(x1 , yLabels)
+predictedY = reg.predict(x1)
+print("SSE for single variable1 (mod appraoch):" + str(reg._residues))
+
+# log scale 3rd feature
+x3 = xFeatures[:,[3]]
+x3 = np.log10(x3)
+
+reg = LinearRegression().fit(x3 , yLabels)
+predictedY = reg.predict(x3)
+
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for single variable 3 (log2 and sqrt):" + str(reg._residues))
+
+# the combined x5 and x6 features
+location = np.sqrt(location)
+reg = LinearRegression().fit(location , yLabels)
+predictedY = reg.predict(location)
+#print("Coefficent for single variable:" +  str(reg.coef_))
+print("SSE for combined variables 5 & 6 (sqrt):" + str(reg._residues))
+
+
+#Fit the model again with the updated features:
+xFeatures[:,1] = np.sqrt(xFeatures[:,1])
+xFeatures[:,3] = np.log(xFeatures[:,3])
+
+reg = LinearRegression().fit(xFeatures, yLabels)
+yPredicted  = reg.predict(xFeatures)
+print("SSE for updated features: " + str(reg._residues))
+print('MSE all features: ' + str(np.mean(np.square(np.subtract(yLabels,yPredicted)))))
+
+
+print("Iteration 11 had the lowest MSE at 51.6446, and the lowest SSE at 26173.5278")
+print("this iteration trimmed the ID feature, took the mod of x1, the log of x3, and squared x5 and x6 features")
+print("the manual removal of outlier data gave the regression algorithm the largest decrease in SSE and MSE")
 exit
 
 
