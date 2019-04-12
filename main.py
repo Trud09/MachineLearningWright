@@ -1,25 +1,11 @@
 print("CS6840 HW 1")
-import os
-os.chdir('c:\\Users') # Replace with path for executing. (so many danged can't find file errors....!)
-# -*- coding: utf-8 -*-
-print("CS6840 HW 1")
 #import os
-#os.chdir('c:\\Users') # Replace with path for executing. (so many danged can't find file errors....!)
+#os.chdir('c:\\Users') # Replace with path 
 import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn import preprocessing
 import matplotlib.pyplot as plt
-## Written by Jacob Ross for CS4840 - Spring 2019
-# stolen and branched by Daniel Ketterer, Travis Ruddy, Benjamin Zook
-# 
-#
-
-# Demonstrate:
-# The ability to forego sleep, food, friendships and meaning to complete
-# all tasks assigned. MUST COMPUTE 001001010100
-
  
-
 #load data - skip first row 
 reData = np.loadtxt('reDataUCI.csv', delimiter = ",", skiprows = 1)
 
@@ -87,43 +73,59 @@ def bgd(xFeatures, yLabels, alpha, epsilon, epochs):
     
 """
 TODO
-3. Test each algorithm on the reDataUCI dataset from Task 1. Compare the
-parameters found in Task 1 versus the parameters found with your OLS
-and BGD code. Compare the SSE and MSE of all three approaches.
-What might explain the differences (if any)?
+3. Test each algorithm on the reDataUCI dataset from Task 1. Report the best one
 4. Report the affects of trying a variety of learning rates and number of
-epochs. What seems to be a good learning rate and number of epochs
-for this data set? Plot the cost of the bgd function after each epoch for
-a variety of number of epochs and learning rate. For each plot note the
-behavior of the cost function. Is it decreasing as expected? Note any
-issues that may be diagnosed via these plots.
+epochs. 
+Plot the cost of the bgd function after each epoch for
+a variety of number of epochs and learning rate. 
 """
-test = bgd(xFeatures, yLabels, .0000001, .1, 3)
+test = bgd(xFeatures, yLabels, .0000001, .0000001, 10000)
 
-ordinaryLeastSquares(xFeatures, yLabels)
+test2 = ordinaryLeastSquares(xFeatures, yLabels)
 
-for 
-
-
-
-
-
-
-
-
+CostHistory = []
+#Here is where a variety of alpha, epochs are tested
+for i in range(5)
+ alpha = 100^(-i)
+ for j in range(5)
+  epochs =100^(j)
+  theta = bgd(xFeatures, yLabels, alpha, .0000001, epochs)
+  Hypo = np.dot(xFeatures, theta)
+  sse = np.sum(np.square(np.subtract(yLabels,Hypo)))
+  mse = np.mean(np.square(np.subtract(yLabels,Hypo)))
+  print('SSE and MME: alpha and epochs ' + str(sse) + str(mse) + str(alpha) + str(epochs))
+  Diff = Hypo - yLabels
+  Cost = (1/2*numRows) * np.sum(np.square(Diff) )
+  CostHistory.append(Cost)
+ fig = plt.figure()
+ plt.plot(epochs, Cost, color = 'r')
+ fig.suptitle("alpha = " + str(alpha))
+ plt.xlabel("Epoch #")
+ plt.ylabel("Cost")
+ plt.show()
 """
-
-
-
 5. Repeat tasks 1.3, 2.3 and 2.4 for another dataset of your choosing. You
 may use any dataset you wish from any public repository (UCI, Kaggle,
 etc.). Give a brief description of the dataset (features, labels).
-6. CS 6840 only - come up with a methodology for comparing the speed
-of your OLS and BGD implementation as a function of the size of some
-artificial training data (that you will have to create). Plot the speed of
-each algorithm as a function of the number of samples in the training
-data. You may also have to adjust the number of features to get noticable
-differences between your OLS code and your BGD code.
+"""
+
+#this is using the new dataset
+reData = np.loadtxt('Admission_Predict.csv', delimiter = ",", skiprows = 1)
+
+
+numRows = np.size(reData,0)
+numCols = np.size(reData,1)
+
+
+xFeatures = reData[:,0:numCols-1]
+yLabels = reData[:,numRows-1]
+
+newtest = bgd(xFeatures, yLabels, .0000001, .0000001, 10000)
+
+newtest2 = ordinaryLeastSquares(xFeatures, yLabels)
+
+
+
 """
 
 
@@ -132,3 +134,5 @@ differences between your OLS code and your BGD code.
 #https://the-tarzan.com/2012/10/27/calculate-ols-regression-manually-in-python-using-numpy/
 #https://machinelearningmastery.com/gradient-descent-for-machine-learning/
 #https://towardsdatascience.com/difference-between-batch-gradient-descent-and-stochastic-gradient-descent-1187f1291aa1
+#https://www.kaggle.com/mohansacharya/graduate-admissions/version/2    ---Dataset
+"""
