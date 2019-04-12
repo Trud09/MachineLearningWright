@@ -638,7 +638,7 @@ reg = LinearRegression().fit(x4, yLabels)
 predictedY = reg.predict(x4)
 
 #print("Coefficent for single variable:" +  str(reg.coef_))
-print("SSE for combined multiplied variables lat & long (square):" + str(reg._residues))
+print("SSE for combined multiplied variables lat & long  x4(square):" + str(reg._residues))
 
 
 #Fit the model again with the updated features:
@@ -719,7 +719,7 @@ reg = LinearRegression().fit(x4, yLabels)
 predictedY = reg.predict(x4)
 
 #print("Coefficent for single variable:" +  str(reg.coef_))
-print("SSE for combined multiplied variables 5 & 6 (square):" + str(reg._residues))
+print("SSE for x4 (log):" + str(reg._residues))
 
 
 #Fit the model again with the updated features:
@@ -806,13 +806,13 @@ reg = LinearRegression().fit(x4, yLabels)
 predictedY = reg.predict(x4)
 
 #print("Coefficent for single variable:" +  str(reg.coef_))
-print("SSE for combined multiplied variables 5 & 6 (cubed):" + str(reg._residues))
+print("SSE for x4 (cubed):" + str(reg._residues))
 
 
 #Fit the model again with the updated features:
 xFeaturesTrimmed[:,0] = np.sqrt(xFeaturesTrimmed[:,0])
 xFeaturesTrimmed[:,2] = np.log(xFeaturesTrimmed[:,2])
-xFeaturesTrimmed[:,4] = np.log(xFeaturesTrimmed[:,4])
+xFeaturesTrimmed[:,4] = np.power((xFeaturesTrimmed[:,4]), 3)
 
 reg = LinearRegression().fit(xFeaturesTrimmed, yLabels)
 yPredicted  = reg.predict(xFeaturesTrimmed)
@@ -888,13 +888,13 @@ reg = LinearRegression().fit(x4, yLabels)
 predictedY = reg.predict(x4)
 
 #print("Coefficent for single variable:" +  str(reg.coef_))
-print("SSE for combined multiplied variables 5 & 6 (sqrt):" + str(reg._residues))
+print("SSE for x4(sqrt):" + str(reg._residues))
 
 
 #Fit the model again with the updated features:
 xFeaturesTrimmed[:,0] = np.sqrt(xFeaturesTrimmed[:,0])
 xFeaturesTrimmed[:,2] = np.log(xFeaturesTrimmed[:,2])
-xFeaturesTrimmed[:,4] = np.log(xFeaturesTrimmed[:,4])
+xFeaturesTrimmed[:,4] = np.sqrt(xFeaturesTrimmed[:,4])
 
 reg = LinearRegression().fit(xFeaturesTrimmed, yLabels)
 yPredicted  = reg.predict(xFeaturesTrimmed)
@@ -971,7 +971,7 @@ reg = LinearRegression().fit(x4, yLabels)
 predictedY = reg.predict(x4)
 
 #print("Coefficent for single variable:" +  str(reg.coef_))
-print("SSE for combined variable 5(no transform):" + str(reg._residues))
+print("SSE for x4 (no transform):" + str(reg._residues))
 
 #Fit the model again with the updated features:
 xFeaturesTrimmed[:,0] = np.sqrt(xFeaturesTrimmed[:,0])
