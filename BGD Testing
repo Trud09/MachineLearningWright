@@ -1,0 +1,38 @@
+def bgd(xFeatures, yLabels, alpha, epsilon, epochs):
+    numRows = xFeatures.shape[0]
+    numCols = xFeatures.shape[1]
+    #print('numCols')
+    #print(numCols)
+    #print('numRows')
+    #print(numRows)
+    i = 0
+    theta = [[0 for x in range(numCols)] for y in range(numRows)]
+    #print(theta)
+    #theta.shape = (numRows,numCols)
+    #print ('shape')
+    #print (theta)
+    theta = np.transpose(theta)
+    #print(theta)
+    
+    #this cost is never used
+    Cost = epsilon + 1
+    while i < epochs or Cost < epsilon:
+        #print (i)
+        Hypo = np.dot(xFeatures, theta)
+        #print(Hypo)
+        Diff = Hypo - yLabels
+       # print(Diff)
+       # print(Hypo)
+       # print(yLabels)
+       
+       
+       #not summing the cost, leaving in an array
+        Cost = (1/2*numRows) * np.sum(np.square(Diff) ) 
+       # print(Cost)
+       
+        #not summing, leaving in an array
+        theta = theta - alpha * (1.0/numRows) * np.dot(np.transpose(xFeatures), Diff)
+        #print(theta)
+        i += 1
+        #print(i)
+    return theta
