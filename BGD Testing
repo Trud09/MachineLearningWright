@@ -6,7 +6,8 @@ def bgd(xFeatures, yLabels, alpha, epsilon, epochs):
     #print('numRows')
     #print(numRows)
     i = 0
-    theta = [[0 for x in range(numCols)] for y in range(numRows)]
+    theta = [[0 for x in range(numCols)] for y in range(2)]
+    #print('theta')
     #print(theta)
     #theta.shape = (numRows,numCols)
     #print ('shape')
@@ -19,20 +20,29 @@ def bgd(xFeatures, yLabels, alpha, epsilon, epochs):
     while i < epochs or Cost < epsilon:
         #print (i)
         Hypo = np.dot(xFeatures, theta)
-        #print(Hypo)
-        Diff = Hypo - yLabels
+        print('hypo')
+        print(Hypo)
+        print('ylabels')
+        print(yLabels)
+       # Diff = Hypo - yLabels
        # print(Diff)
        # print(Hypo)
        # print(yLabels)
        
        
        #not summing the cost, leaving in an array
-        Cost = (1/2*numRows) * np.sum(np.square(Diff) ) 
+       # Cost = (1/2*numRows) * np.sum(np.square(Diff) ) 
        # print(Cost)
        
         #not summing, leaving in an array
-        theta = theta - alpha * (1.0/numRows) * np.dot(np.transpose(xFeatures), Diff)
+       # theta = theta - alpha * (1.0/numRows) * np.dot(np.transpose(xFeatures), Diff)
         #print(theta)
         i += 1
         #print(i)
     return theta
+ 
+from sklearn import datasets, linear_model
+xFeatures, Ylabels = datasets.make_regression(n_samples=20, n_features= 1, n_informative=0, n_targets=1, bias=10.0, effective_rank=None, tail_strength=0.5, noise=30.0, shuffle=True, coef=False, random_state=None)
+print(Ylabels)
+
+print (bgd(xFeatures, Ylabels, .05, .0001 , 2))
