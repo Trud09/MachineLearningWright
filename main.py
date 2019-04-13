@@ -52,7 +52,7 @@ def bgd(xFeatures, yLabels, alpha, epsilon, epochs):
     i = 0
     theta = np.array([[0 for x in range(numCols-1)]], ndmin=2)
    # print(theta)
-    #theta.shape = (numCols-1,1)
+   # theta.shape = (numCols-1,1)
     theta = np.transpose(theta)
     print(theta)
     Cost = epsilon + 1
@@ -60,14 +60,14 @@ def bgd(xFeatures, yLabels, alpha, epsilon, epochs):
         Hypo = np.dot(xFeatures, theta)
         Diff = Hypo - yLabels
        # print(Diff)
-        print(Hypo)
+       # print(Hypo)
        # print(yLabels)
         Cost = (1/2*numRows) * np.sum(np.square(Diff) ) 
-        print(Cost)
+       # print(Cost)
         theta = theta - alpha * (1.0/numRows) * np.dot(np.transpose(xFeatures), Diff)
-        print(theta)
+        #print(theta)
         i += 1
-        print(i)
+        #print(i)
     return theta
     
     
@@ -85,15 +85,15 @@ test2 = ordinaryLeastSquares(xFeatures, yLabels)
 
 CostHistory = []
 #Here is where a variety of alpha, epochs are tested
-for i in range(5)
- alpha = 100^(-i)
- for j in range(5)
-  epochs =100^(j)
+for i in range(2):
+ alpha = 1000**(-i-1)
+ for j in range(5):
+  epochs =10**(j)
   theta = bgd(xFeatures, yLabels, alpha, .0000001, epochs)
   Hypo = np.dot(xFeatures, theta)
   sse = np.sum(np.square(np.subtract(yLabels,Hypo)))
   mse = np.mean(np.square(np.subtract(yLabels,Hypo)))
-  print('SSE and MME: alpha and epochs ' + str(sse) + str(mse) + str(alpha) + str(epochs))
+  print('SSE and MME: alpha and epochs ' + str(sse) + str(', ') + str(mse) + str(', ') + str(alpha) + str(', ') + str(epochs))
   Diff = Hypo - yLabels
   Cost = (1/2*numRows) * np.sum(np.square(Diff) )
   CostHistory.append(Cost)
