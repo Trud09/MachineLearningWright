@@ -1,0 +1,33 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Apr 13 19:55:31 2019
+
+@author: Admin
+"""
+
+import numpy as np
+from sklearn import datasets, linear_model
+
+def gradientDescent(X,y,alpha, epsilon, epochs):
+    numRows = X.shape[0]
+    numCols = X.shape[1]
+    print ('numCols')
+    print (numCols)
+    theta = np.zeros([1, 2 ])
+    print ('theta')
+    print (theta)
+    
+    cost = np.zeros(epochs)
+    for i in range(epochs):
+        theta = theta - (alpha/len(X)) * np.sum(X * (X @ theta.T - y), axis=0)
+        cost[i] = computeCost(X, y, theta)
+    
+    return theta,cost
+
+def computeCost (x, y, theta):
+    toBeSummed = np.power(((x @ theta.T)-y), 2)
+    return np.sum(toBeSummed)/(2 * len(x))
+    
+
+xFeatures, Ylabels = datasets.make_regression(n_samples=20, n_features= 1, n_informative=0, n_targets=1, bias=10.0, effective_rank=None, tail_strength=0.5, noise=30.0, shuffle=True, coef=False, random_state=None)
+print(Ylabels)
